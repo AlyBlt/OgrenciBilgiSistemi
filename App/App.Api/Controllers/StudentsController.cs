@@ -86,6 +86,13 @@ namespace App.Api.Controllers
             return Ok("Öğrenci silindi.");
         }
 
+        [HttpGet("checkunique/{ogrenciNo}")]
+        public IActionResult CheckUniqueOgrenciNo(string ogrenciNo)
+        {
+            var exists = StudentData.Students.Any(s => s.OgrenciNo == ogrenciNo);
+            return Ok(!exists); // true dönerse "benzersiz", false ise "var"
+        }
+
 
 
     }
