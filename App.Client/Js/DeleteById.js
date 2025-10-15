@@ -16,6 +16,52 @@ const deleteBtn = document.getElementById('deleteBtn');
 
 let currentStudentId = null;
 
+function showMessage(message, type = 'danger') {
+    messageDiv.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+        </div>
+    `;
+}
+
+function showFetchError(message) {
+    const errorMessageDiv = document.getElementById('fetchMessage');
+    if (errorMessageDiv) {
+        errorMessageDiv.style.display = 'block';  // Görünür yap
+        errorMessageDiv.textContent = message; // Mesajý ekle
+    }
+}
+
+async function initPage() {
+    // Baþlangýçta kontrol et: sistemde öðrenci var mý?
+    try {
+        const listResponse = await fetch(apiUrl);
+        if (!listResponse.ok) {
+            throw new Error('Öðrenciler alýnýrken hata oluþtu: ' + listResponse.statusText);
+        }
+        const studentsList = await listResponse.json();
+
+        if (studentsList.length === 0) {
+            // Hiç öðrenci yoksa formu ve detaylarý gizle, mesaj göster
+            searchForm.style.display = 'none';
+            studentDetails.style.display = 'none';
+            showMessage("Listede silinecek kayýtlý öðrenci bulunamadý.", 'warning');
+            return;
+        }
+    } catch (err) {
+        showFetchMessage(`Sunucuya ulaþýlamýyor. Lütfen uygulamanýn çalýþtýðýndan ve internet baðlantýnýzýn aktif olduðundan emin olun. (Hata: ${err.message})`);
+        // Formu gizle de olabilir
+        searchForm.style.display = 'none';
+        studentDetails.style.display = 'none';
+    }
+}
+
+// Sayfa yüklenirken init çalýþsýn
+document.addEventListener('DOMContentLoaded', () => {
+    initPage();
+});
+
 searchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     messageDiv.textContent = '';
@@ -24,14 +70,14 @@ searchForm.addEventListener('submit', async (e) => {
     const id = document.getElementById('studentId').value.trim();
 
     if (!id) {
-        alert('Lütfen bir öðrenci ID\'si girin.');
+        showMessage('Lütfen bir öðrenci Id\'si girin.');
         return;
     }
 
     try {
         const response = await fetch(`${apiUrl}/${id}`);
         if (response.status === 404) {
-            messageDiv.textContent = 'Öðrenci bulunamadý.';
+            showMessage(id + ' numaralý Id\'ye sahip bir öðrenci bulunamadý.');
             return;
         }
         if (!response.ok) {
@@ -51,13 +97,13 @@ searchForm.addEventListener('submit', async (e) => {
         studentDetails.style.display = 'block';
         currentStudentId = student.id;
     } catch (error) {
-        messageDiv.textContent = error.message;
+        showFetchMessage(`Sunucuya ulaþýlamýyor. Lütfen uygulamanýn çalýþtýðýndan ve internet baðlantýnýzýn aktif olduðundan emin olun. (Hata: ${error.message})`);
     }
 });
 
 deleteBtn.addEventListener('click', async () => {
     if (!currentStudentId) {
-        alert('Lütfen önce öðrenci arayýn.');
+        showMessage('Lütfen önce öðrenci arayýn.');
         return;
     }
 
@@ -71,14 +117,27 @@ deleteBtn.addEventListener('click', async () => {
         });
 
         if (response.ok) {
-            messageDiv.textContent = 'Öðrenci baþarýyla silindi.';
+            showMessage('Öðrenci baþarýyla silindi.', 'success');
             studentDetails.style.display = 'none';
             currentStudentId = null;
             searchForm.reset();
+            // Silme sonrasý: kontrol et, artýk öðrenci hiç kalmadýysa
+            const listResponse = await fetch(apiUrl);
+            if (listResponse.ok) {
+                const studentsList = await listResponse.json();
+                if (studentsList.length === 0) {
+                    // Hiç öðrenci kalmadý, formu gizle
+                    searchForm.style.display = 'none';
+                    showMessage("Listede silinecek öðrenci kalmadý.", 'warning');
+                }
+            }
         } else {
-            throw new Error('Silme iþlemi baþarýsýz oldu.');
+            const errText = await response.text();
+            showMessage('Silme iþlemi baþarýsýz oldu: ' + errText);
         }
+
     } catch (error) {
-        messageDiv.textContent = error.message;
+        showMessage('Bir hata oluþtu. (Hata: ' + error.message + ')');
     }
+        
 });

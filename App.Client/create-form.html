@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>Form ile Öðrenci Ekle</title>
+
+    <style>
+        .btn-custom {
+            background-color: #6f42c1;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-custom:hover {
+                background-color: #59359c;
+                color: white;
+            }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-5">Öðrenci Ekle</h2>
+        <div id="form-messages"></div>
+        <form id="studentForm" accept-charset="UTF-8" action="https://localhost:7282/api/students" method="post">
+            <div class="row">
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <label for="ad" class="form-label fw-bold">Ad<span class="text-danger">*</span></label>
+                    <input class="form-control mb-3" type="text" name="ad" id="ad" required>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <label for="soyad" class="form-label fw-bold">Soyad<span class="text-danger">*</span></label>
+                    <input class="form-control mb-3" type="text" name="soyad" id="soyad" required>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <label for="ogrenciNo" class="form-label fw-bold">Öðrenci No<span class="text-danger">*</span></label>
+                    <input class="form-control mb-3" type="text" name="ogrenciNo" id="ogrenciNo" required>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <label for="sinif" class="form-label fw-bold">Sýnýf</label>
+                    <input class="form-control mb-3" type="text" name="sinif" id="sinif">
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-3">
+                    <label for="eposta" class="form-label fw-bold">E-posta</label>
+                    <input class="form-control mb-3" type="email" name="eposta" id="eposta">
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-custom mt-3">Öðrenci Ekle</button>
+            </div>
+        </form>
+    </div>
+
+
+
+
+    <script>
+        document.getElementById("studentForm").addEventListener("submit", function (event) {
+            if (!validateForm()) {
+                event.preventDefault(); // Formun sunucuya gönderilmesini engelle
+                return;
+            }
+            // Validasyon baþarýlýysa, butonu devre dýþý býrak ve yazýsýný deðiþtir
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Yükleniyor...';
+        });
+
+        function validateForm() {
+            let errors = [];
+
+            const ad = document.getElementById("ad").value.trim();
+            const soyad = document.getElementById("soyad").value.trim();
+            const ogrenciNo = document.getElementById("ogrenciNo").value.trim();
+
+            if (!ad) errors.push("Ad alaný zorunludur.");
+            if (!soyad) errors.push("Soyad alaný zorunludur.");
+            if (!ogrenciNo) errors.push("Öðrenci numarasý zorunludur.");
+
+
+            const messageDiv = document.getElementById("form-messages");
+
+            if (errors.length > 0) {
+                messageDiv.innerHTML = `
+                            <div class="alert alert-danger">
+                                <ul>
+                                    ${errors.map(e => `<li>${e}</li>`).join("")}
+                                </ul>
+                            </div>`;
+                return false; // validasyon baþarýsýz
+            }
+
+            messageDiv.innerHTML = ""; // hata yoksa mesajý temizle
+            return true; // validasyon baþarýlý
+        }
+
+    </script>
+
+   
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

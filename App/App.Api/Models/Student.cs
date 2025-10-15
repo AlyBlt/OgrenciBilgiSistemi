@@ -7,11 +7,11 @@ namespace App.Api.Models
         public int Id { get; set; }  // Sistem tarafından otomatik verilecek
         public string Ad { get; set; } = string.Empty;
         public string Soyad { get; set; } = string.Empty;
-        public string OgrenciNo { get; set; } = string.Empty;
-        public string Sinif { get; set; } = string.Empty;            // Öğrencinin sınıf bilgisi
-        public string Eposta { get; set; } = string.Empty;           // İletişim için
-        public DateTime KayitTarihi { get; set; } = DateTime.Now;    // Otomatik kayıt tarihi
-        public bool AktifMi { get; set; } = true;                    // Silinmemiş / aktif öğrenci mi?
+        public string OgrenciNo { get; set; } = string.Empty;  //harf ya da - gibi işaretler olabilir o nedenle string bıraktım.
+        public string Sinif { get; set; } = string.Empty;            
+        public string Eposta { get; set; } = string.Empty;           
+        public DateTime KayitTarihi { get; set; } = DateTime.Now;    
+        public bool AktifMi { get; set; } = true;                    
 
     }
 }

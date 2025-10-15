@@ -2,13 +2,21 @@ async function fetchStudents() {
     try {
         const response = await fetch('https://localhost:7282/api/Students');
         if (!response.ok) {
-            alert('Öðrenciler alýnýrken hata oluþtu: ' + response.statusText);
+            showPageMessage('Öðrenciler alýnýrken hata oluþtu: ' + response.statusText);
             return;
         }
         const students = await response.json();
 
         const tbody = document.querySelector('#studentsTable tbody');
         tbody.innerHTML = ''; // Önce tabloyu temizle
+
+        if (students.length === 0) {
+            // Eðer öðrenci yoksa tabloya 1 satýrlýk mesaj ekle
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="8" class="text-center bg-warning-subtle">Listede silinecek kayýtlý öðrenci bulunamadý.</td>`;
+            tbody.appendChild(tr);
+            return;
+        }
 
         students.forEach(student => {
             const tr = document.createElement('tr');
@@ -27,7 +35,7 @@ async function fetchStudents() {
             tbody.appendChild(tr);
         });
     } catch (error) {
-        alert('Fetch sýrasýnda hata oluþtu: ' + error.message);
+        showFetchError('Bir hata oluþtu.Lütfen internet baðlantýnýzý kontrol edin ve tekrar deneyin.' + "(Hata: " + error.message+ ")");
     }
 }
 
@@ -40,15 +48,40 @@ async function deleteStudent(id) {
         });
 
         if (!response.ok) {
-            alert("Silme iþlemi baþarýsýz oldu.");
+            const errorText = await response.text();
+            showPageMessage("Silme iþlemi baþarýsýz oldu: " + errorText);
             return;
         }
 
-        alert("Öðrenci baþarýyla silindi.");
+        showPageMessage("Öðrenci baþarýyla silindi.", 'success');
         fetchStudents(); // Listeyi tekrar yükle
     } catch (error) {
-        alert('Silme sýrasýnda hata oluþtu: ' + error.message);
+        showPageMessage('Silme sýrasýnda hata oluþtu: ' + error.message);
     }
+}
+// Fetch Error mesaji için ayrý div
+function showFetchError(message) {
+    const errorMessageDiv = document.getElementById('fetchError');
+    if (errorMessageDiv) {
+        errorMessageDiv.style.display = 'block';  // Görünür yap
+        errorMessageDiv.textContent = message; // Mesajý ekle
+    }
+}
+function showPageMessage(message, type = 'danger') {
+    let msgDiv = document.getElementById('page-messages');
+    if (!msgDiv) {
+        msgDiv = document.createElement('div');
+        msgDiv.id = 'page-messages';
+        msgDiv.classList.add('mt-3');
+        document.querySelector('.container').prepend(msgDiv);
+    }
+
+    msgDiv.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+        </div>
+    `;
 }
 
 document.addEventListener('DOMContentLoaded', fetchStudents);

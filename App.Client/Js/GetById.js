@@ -1,25 +1,82 @@
 const apiUrl = 'https://localhost:7282/api/Students';
+function showFetchMessage(message) {
+    const resultDiv = document.getElementById('result'); 
+    let errorDiv = document.getElementById('error-message');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'error-message';
+        document.querySelector('.container').prepend(errorDiv);
+    }
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = message;
+    resultDiv.innerHTML = '';
+}
+function showError(message) {
+    const resultDiv = document.getElementById('result'); 
+    resultDiv.innerHTML = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+        </div>
+    `;
+}
+// SAYFA AÇILDIÐINDA LÝSTEDE ÖÐRENCÝ VAR MI KONTROL ET
+document.addEventListener('DOMContentLoaded', async () => {
+    const form = document.getElementById('getForm');
+    const resultDiv = document.getElementById('result');
 
-document.getElementById('getStudentBtn').addEventListener('click', async () => {
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error('Sunucu hatasý: ' + response.status);
+        }
+
+        const students = await response.json();
+
+        if (students.length === 0) {
+            // Öðrenci yoksa formu gizle ve mesaj göster
+            form.style.display = 'none';
+            resultDiv.innerHTML = `
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Listede gösterilecek kayýtlý öðrenci bulunamadý.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+                </div>
+            `;
+        }
+    } catch (error) {
+        form.style.display = 'none';
+        showFetchMessage(`Sunucuya ulaþýlamýyor. Lütfen uygulamanýn çalýþtýðýndan ve internet baðlantýnýzýn aktif olduðundan emin olun. (Hata: ${error.message})`);
+        
+    }
+});
+
+
+document.getElementById('getForm').addEventListener('submit', async (e) => {
+    e.preventDefault(); // Sayfa yenilenmesin
+
     const idInput = document.getElementById('studentId');
     const id = idInput.value.trim();
     const resultDiv = document.getElementById('result');
+    const errorMessageDiv = document.getElementById('error-message');
+    const btn = e.submitter; // Formu gönderen butonu al (Getir butonu)
 
-    if (!id) {
-        resultDiv.innerHTML = '<div class="alert alert-warning">Lütfen bir öðrenci ID giriniz.</div>';
-        return;
-    }
+    resultDiv.innerHTML = '';
+    errorMessageDiv.style.display = 'none';
+
+    btn.disabled = true;
+    btn.textContent = 'Yükleniyor...';
 
     try {
         const response = await fetch(`${apiUrl}/${id}`);
 
         if (response.status === 404) {
-            resultDiv.innerHTML = `<div class="alert alert-danger">ID'si ${id} olan öðrenci bulunamadý.</div>`;
+            showError(`${id} numaralý Id\'ye sahip bir öðrenci bulunamadý.`);
             return;
         }
 
         if (!response.ok) {
-            throw new Error('Öðrenci bilgisi alýnýrken hata oluþtu.');
+            showError('Öðrenci bilgisi alýnýrken hata oluþtu.');
+            return;
         }
 
         const student = await response.json();
@@ -35,7 +92,23 @@ document.getElementById('getStudentBtn').addEventListener('click', async () => {
                 <tr><th>Aktif Mi?</th><td>${student.aktifMi ? 'Evet' : 'Hayýr'}</td></tr>
             </table>
         `;
+
+        idInput.value = '';
+        idInput.focus();
+
     } catch (error) {
-        resultDiv.innerHTML = `<div class="alert alert-danger">Hata: ${error.message}</div>`;
+        if (error.message.includes('Failed to fetch')) {
+            showFetchMessage('Sunucuya ulaþýlamýyor. Lütfen uygulamanýn çalýþtýðýndan ve internet baðlantýnýzýn aktif olduðundan emin olun.');
+        } else {
+            showError(`Bir hata oluþtu: ${error.message}`);
+            
+        }
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Getir';
     }
+
 });
+
+
+
