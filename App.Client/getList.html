@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <script src="Js/getList.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <title>Öðrenci Listesi</title>
     <style>
         #studentsTable thead tr {
             border-bottom: 2px solid gray;
+        }
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #studentsTable thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa; /* Bootstrap'in table header rengi */
+            z-index: 2;
         }
         
     </style>
@@ -15,31 +26,34 @@
     <div class="container mt-5">
         <div id="error-message" style="text-align:center; color: red; margin-top:5px; margin-bottom:5px;"></div>
         <h2 class="text-center mb-5" style="background-color: #b0b0b0; ">Öðrenci Listesi</h2>
-        <table class="table table-striped" id="studentsTable">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Ad</th>
-                    <th>Soyad</th>
-                    <th>Öðrenci No</th>
-                    <th>Sýnýf</th>
-                    <th>E-posta</th>
-                    <th>Aktif Mi?</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Öðrenciler buraya eklenecek -->
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="table table-striped" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Ad</th>
+                        <th>Soyad</th>
+                        <th>Öðrenci No</th>
+                        <th>Sýnýf</th>
+                        <th>E-posta</th>
+                        <th>Aktif Mi?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Öðrenciler buraya eklenecek -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
 
 
-    <script src="Js/getList.js"></script>
 
 
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+
 </body>
 </html>

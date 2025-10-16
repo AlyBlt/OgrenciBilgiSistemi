@@ -19,7 +19,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h2 class="text-center mb-5">Öðrenci Ekle</h2>
+        <h2 class="text-center mb-5" style="background-color: #b0b0b0;">Öðrenci Ekle</h2>
         <div id="form-messages"></div>
         <form id="studentForm" accept-charset="UTF-8" action="https://localhost:7282/api/students" method="post">
             <div class="row">
@@ -68,9 +68,11 @@
         function validateForm() {
             let errors = [];
 
-            const ad = document.getElementById("ad").value.trim();
-            const soyad = document.getElementById("soyad").value.trim();
-            const ogrenciNo = document.getElementById("ogrenciNo").value.trim();
+            const ad = capitalizeWords(document.getElementById("ad").value.trim());
+            const soyad = capitalizeWords(document.getElementById("soyad").value.trim());
+            const ogrenciNo = document.getElementById("ogrenciNo").value.trim().toUpperCase();
+            const sinif = document.getElementById("sinif").value.trim().toUpperCase() || ' ';
+            const eposta = document.getElementById("eposta").value.trim() || ' ';
 
             if (!ad) errors.push("Ad alaný zorunludur.");
             if (!soyad) errors.push("Soyad alaný zorunludur.");
@@ -88,10 +90,23 @@
                             </div>`;
                 return false; // validasyon baþarýsýz
             }
+            // Hatalar yoksa, formu iþleyelim
+            document.getElementById("ad").value = ad; // Ýþlenmiþ adý inputa ata
+            document.getElementById("soyad").value = soyad; // Ýþlenmiþ soyadý inputa ata
+            document.getElementById("ogrenciNo").value = ogrenciNo; // Ýþlenmiþ öðrenciNo inputa ata
+            document.getElementById("sinif").value = sinif; // Sýnýfý inputa ata
+            document.getElementById("eposta").value = eposta; // Emaili inputa ata
 
             messageDiv.innerHTML = ""; // hata yoksa mesajý temizle
             return true; // validasyon baþarýlý
         }
+        function capitalizeWords(str) {
+            return str
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
+        
 
     </script>
 

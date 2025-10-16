@@ -92,12 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
  
         // Gönderilecek veri objesi
+        const ogrenciNoUpper = ogrenciNo ? ogrenciNo.toUpperCase() : null;
+        const sinifUpper = sinif ? sinif.toUpperCase() : null;
+
         const studentData = {
-            Ad: capitalizedAd,
-            Soyad: capitalizedSoyad,
-            OgrenciNo: ogrenciNo,
-            Sinif: sinif,
-            Eposta: eposta
+            ad: capitalizedAd,
+            soyad: capitalizedSoyad,
+            ogrenciNo: ogrenciNoUpper,
+            sinif: sinifUpper ,
+            eposta: eposta || null
         };
         // Öðrenci verisini API'ye gönder
         try {
@@ -109,11 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(studentData)
             });
 
+           
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Hata:', errorData);  // Konsola hata mesajýný yazdýr
-                showMessage('Hata: ' + (errorData.title || response.statusText || 'Bilinmeyen bir hata oluþtu.'));
-                resetSubmitButton(); return;
+                const errorMessage = errorData.title || errorData.message || response.statusText || 'Bilinmeyen bir hata oluþtu.';
+                console.error('Hata:', errorData);
+                showMessage('Hata: ' + errorMessage);
+                resetSubmitButton();
+                return;
             }
 
             const createdStudent = await response.json();

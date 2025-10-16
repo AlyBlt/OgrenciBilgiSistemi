@@ -1,4 +1,29 @@
 async function fetchStudents() {
+
+    // Yardýmcý fonksiyon: güvenli td oluþturur (textContent kullanýr)
+    function createTd(text) {
+        const td = document.createElement('td');
+        td.textContent = text == null ? '' : text;  // null ya da undefined kontrolü
+        return td;
+    }
+    // Yardýmcý: tbody'yi temizler
+    function clearTbody(tbody) {
+        while (tbody.firstChild) {
+            tbody.removeChild(tbody.firstChild);
+        }
+    }
+
+    // Yardýmcý: "Ýþlem" sütunu görünürlüðünü ayarlar
+    function toggleActionColumn(show) {
+        const th = document.querySelector('#studentsTable thead tr th:last-child');
+        if (th) th.style.display = show ? '' : 'none';
+
+        const tdElements = document.querySelectorAll('#studentsTable tbody tr td:last-child');
+        tdElements.forEach(td => {
+            td.style.display = show ? '' : 'none';
+        });
+    }
+
     try {
         const response = await fetch('https://localhost:7282/api/Students');
         if (!response.ok) {
@@ -8,32 +33,63 @@ async function fetchStudents() {
         const students = await response.json();
 
         const tbody = document.querySelector('#studentsTable tbody');
-        tbody.innerHTML = ''; // Önce tabloyu temizle
+        /*tbody.innerHTML = ''; // Önce tabloyu temizle*/
+        clearTbody(tbody);
 
         if (students.length === 0) {
-            // Eðer öðrenci yoksa tabloya 1 satýrlýk mesaj ekle
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td colspan="8" class="text-center bg-warning-subtle">Listede silinecek kayýtlý öðrenci bulunamadý.</td>`;
-            tbody.appendChild(tr);
-            return;
-        }
+            toggleActionColumn(false);
 
-        students.forEach(student => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${student.id}</td>
-                <td>${student.ad}</td>
-                <td>${student.soyad}</td>
-                <td>${student.ogrenciNo}</td>
-                <td>${student.sinif}</td>
-                <td>${student.eposta}</td>
-                <td>${student.aktifMi ? 'Evet' : 'Hayýr'}</td>
-                <td>
-                    <button class="btn btn-danger btn-sm" onclick="deleteStudent(${student.id})">Sil</button>
-                </td>
-            `;
+            const td = document.createElement('td');
+            td.colSpan = 8;
+            td.style.backgroundColor = 'transparent';
+            td.style.padding = '0';
+            td.style.marginTop = '5px';
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-warning text-center mb-0';
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.textContent = 'Listede silinecek kayýtlý öðrenci bulunamadý.';
+
+            td.appendChild(alertDiv);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+
+            return;
+        } 
+        else {
+            toggleActionColumn(true);
+        }
+        
+            students.forEach(student => {
+            const tr = document.createElement('tr');
+
+            // Her hücre için createTd kullanarak metni güvenle ekliyoruz
+            tr.appendChild(createTd(student.id));
+            tr.appendChild(createTd(student.ad));
+            tr.appendChild(createTd(student.soyad));
+            tr.appendChild(createTd(student.ogrenciNo));
+            tr.appendChild(createTd(student.sinif));
+            tr.appendChild(createTd(student.eposta));
+            tr.appendChild(createTd(student.aktifMi ? 'Evet' : 'Hayýr'));
+
+
+            // Ýþlem sütunu (sil butonu) oluþturuluyor
+            const tdAction = document.createElement('td');
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-danger btn-sm';
+            btn.textContent = 'Sil';
+
+            // Butona event listener ekleniyor (onclick yerine)
+            btn.addEventListener('click', () => deleteStudent(student.id));
+
+            tdAction.appendChild(btn);
+            tr.appendChild(tdAction);
+
             tbody.appendChild(tr);
         });
+
+
     } catch (error) {
         showFetchError('Bir hata oluþtu.Lütfen internet baðlantýnýzý kontrol edin ve tekrar deneyin.' + "(Hata: " + error.message+ ")");
     }
@@ -72,7 +128,7 @@ function showPageMessage(message, type = 'danger') {
     if (!msgDiv) {
         msgDiv = document.createElement('div');
         msgDiv.id = 'page-messages';
-        msgDiv.classList.add('mt-3');
+        msgDiv.classList.add('mt-5');
         document.querySelector('.container').prepend(msgDiv);
     }
 

@@ -50,7 +50,7 @@ async function initPage() {
             return;
         }
     } catch (err) {
-        showFetchMessage(`Sunucuya ulaþýlamýyor. Lütfen uygulamanýn çalýþtýðýndan ve internet baðlantýnýzýn aktif olduðundan emin olun. (Hata: ${err.message})`);
+        showFetchError(`Sunucuya ulaþýlamýyor. Lütfen uygulamanýn çalýþtýðýndan ve internet baðlantýnýzýn aktif olduðundan emin olun. (Hata: ${err.message})`);
         // Formu gizle de olabilir
         searchForm.style.display = 'none';
         studentDetails.style.display = 'none';
@@ -97,7 +97,7 @@ searchForm.addEventListener('submit', async (e) => {
         studentDetails.style.display = 'block';
         currentStudentId = student.id;
     } catch (error) {
-        showFetchMessage(`Sunucuya ulaþýlamýyor. Lütfen uygulamanýn çalýþtýðýndan ve internet baðlantýnýzýn aktif olduðundan emin olun. (Hata: ${error.message})`);
+        showFetchError(`Sunucuya ulaþýlamýyor. Lütfen uygulamanýn çalýþtýðýndan ve internet baðlantýnýzýn aktif olduðundan emin olun. (Hata: ${error.message})`);
     }
 });
 

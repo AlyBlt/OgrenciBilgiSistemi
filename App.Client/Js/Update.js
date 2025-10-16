@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function showFormMessage(message, type = 'danger') {
         let msgDiv = document.getElementById('form-messages');
         msgDiv.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert" style="margin-top: 0px; margin-bottom: 0px;">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
         </div>
@@ -164,13 +164,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
         const updatedStudent = {
-            Id: parseInt(idFromForm),
-            Ad: capitalizeWords(ad),
-            Soyad: capitalizeWords(soyad),
-            OgrenciNo: ogrenciNo,
-            Sinif: sinif === "" ? null : capitalizeWords(sinif),
-            Eposta: eposta === "" ? null : eposta,
-            AktifMi: document.getElementById('aktifMi').checked
+            id: parseInt(idFromForm),
+            ad: capitalizeWords(ad),
+            soyad: capitalizeWords(soyad),
+            ogrenciNo: ogrenciNo.toUpperCase(),
+            sinif: sinif === "" ? null : sinif.toUpperCase(),
+            eposta: eposta === "" ? null : eposta,
+            aktifMi: document.getElementById('aktifMi').checked
         };
 
         try {
@@ -185,12 +185,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) {
                 let errorMessage = "Beklenmeyen bir hata oluþtu.";
                 try {
-                    const error = await response.text();
-                    errorMessage = error;
-                } catch (_) { }
-
-                showFormMessage(errorMessage);         
-                resetSubmitButton(); return;  // Ýþlemi durdur
+                    const errorData = await response.json();
+                    errorMessage = errorData.title || errorData.message || JSON.stringify(errorData);
+                } catch (_) {
+                    try {
+                        errorMessage = await response.text();
+                    } catch (_) { }
+                }
+                showFormMessage(errorMessage);
+                resetSubmitButton();
+                return;
             }
 
             const result = await response.json();
