@@ -8,14 +8,30 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join(' ');
     }
+    function closeMessage(button) {
+        // X butonuna týklandýðýnda çalýþacak fonksiyon
+        const msgDiv = button.closest('.alert');  // Butona en yakýn .alert div'ini buluyoruz
+        if (msgDiv) {
+            msgDiv.remove();  // Mesajý hemen DOM'dan kaldýrýyoruz
+        }
+    }
     function showMessage(message, type = 'danger') {
+        const messageContainer = document.getElementById('form-messages'); // Mesaj container'ýný seçiyoruz
         messageContainer.innerHTML = `
             <div class="alert alert-${type}" role="alert">
                 ${message}
+               <button type="button" class="btn-close" aria-label="Kapat" style="position: absolute; top: 10px; right: 10px;"></button>
             </div>
         `;
-    }
 
+        // Burada, 'btn-close' butonuna týklama olayýný baðlýyoruz
+        const closeButton = messageContainer.querySelector('.btn-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', function () {
+                closeMessage(this);
+            });
+        }
+    }
     function resetSubmitButton() {
         submitButton.disabled = false;
         submitButton.textContent = 'Öðrenci Ekle';
@@ -29,6 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
             errorMessageDiv.textContent = message; // Mesajý ekle
         }
     }
+
+    // Burada, 'btn-close' butonuna týklama olayýný baðlýyoruz
+    
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();  // Formun klasik submitini engelle
@@ -60,6 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!ogrenciNo) {
             showMessage('Öðrenci No boþ býrakýlamaz!');
             resetSubmitButton(); return;
+        }
+        // Validate email format if present
+        if (eposta && !/\S+@\S+\.\S+/.test(eposta)) {
+            showMessage('Geçersiz e-posta adresi!');
+            resetSubmitButton();
+            return;
         }
 
         const capitalizedAd = capitalizeWords(ad);
@@ -98,8 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const studentData = {
             ad: capitalizedAd,
             soyad: capitalizedSoyad,
-            ogrenciNo: ogrenciNoUpper,
-            sinif: sinifUpper ,
+            ogrenciNo: ogrenciNo.toUpperCase(),
+            sinif: sinif?.toUpperCase() || null ,
             eposta: eposta || null
         };
         // Öðrenci verisini API'ye gönder

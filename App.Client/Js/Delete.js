@@ -105,14 +105,14 @@ async function deleteStudent(id) {
 
         if (!response.ok) {
             const errorText = await response.text();
-            showPageMessage("Silme iþlemi baþarýsýz oldu: " + errorText);
+            showPageMessage("Öðrenci silme iþlemi sýrasýnda bir sorun oluþtu. Lütfen tekrar deneyin.(Hata: " + errorText + ")");
             return;
         }
 
         showPageMessage("Öðrenci baþarýyla silindi.", 'success');
         fetchStudents(); // Listeyi tekrar yükle
     } catch (error) {
-        showPageMessage('Silme sýrasýnda hata oluþtu: ' + error.message);
+        showPageMessage('Silme sýrasýnda hata oluþtu.(Hata: ' + error.message + ')');
     }
 }
 // Fetch Error mesaji için ayrý div

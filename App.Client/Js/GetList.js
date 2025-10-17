@@ -1,9 +1,16 @@
 async function fetchStudents() {
     try {
         const response = await fetch('https://localhost:7282/api/Students');
+       
         if (!response.ok) {
-            const errorText = await response.text(); // API hata mesajý varsa al
-            throw new Error(`Sunucu hatasý: ${response.status} - ${response.statusText} ${errorText}`);
+            const errorText = await response.text();  // API hata mesajýný al
+            if (response.status === 404) {
+                throw new Error(`Öðrenciler bulunamadý (404): ${errorText}`);
+            } else if (response.status === 500) {
+                throw new Error(`Sunucu hatasý (500): ${errorText}`);
+            } else {
+                throw new Error(`Sunucu hatasý: ${response.status} - ${response.statusText} ${errorText}`);
+            }
         }
         const students = await response.json();
 

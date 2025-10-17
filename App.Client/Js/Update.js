@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('updateForm');
     const submitButton = form.querySelector('button[type="submit"]');
+    let student = null;  // Burada global olarak student deðiþkenini tanýmlýyoruz
+    let lastValidSinif = null;  // En son geçerli sinif deðeri için bir deðiþken ekliyoruz
+    let lastValidEposta = null; // En son geçerli eposta deðeri için bir deðiþken ekliyoruz
 
     function resetSubmitButton() {
         submitButton.disabled = false;
@@ -22,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
         `;
     }
-
     function showFetchMessage(message) {
 
         let errorDiv = document.getElementById('fetch-message');
@@ -36,10 +38,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         errorDiv.style.display = 'block';  // Hata mesajýný göster
         errorDiv.textContent = message; // Mesajý ayarla
 
-
     }
 
-    try {
+    function validateStudent(student) {
+        // Sýnýf ve Eposta boþ ise hata vermeyelim, sadece null döndürelim
+        if (!student.sinif) {
+            student.sinif = null; // Boþsa null olarak ayarlayalým
+        }
+
+        if (!student.eposta) {
+            student.eposta = null; // Boþsa null olarak ayarlayalým
+        }
+
+        return null; // Herhangi bir hata yoksa null döndürüyoruz
+    }
+
+   try {
         // Öðrenci listesini çekiyoruz
         const listResponse = await fetch('https://localhost:7282/api/Students');
         if (!listResponse.ok) throw new Error('Öðrenciler alýnýrken hata oluþtu.');
@@ -96,8 +110,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('ad').value = student.Ad || '';
             document.getElementById('soyad').value = student.Soyad || '';
             document.getElementById('ogrenciNo').value = student.OgrenciNo || '';
-            document.getElementById('sinif').value = student.Sinif || '';
+            document.getElementById('sinif').value = student.Sinif || '';// Burada eski deðeri alýyoruz
+            lastValidSinif = student.sinif || ''; // Ýlk öðrenci verisiyle gelen sinif deðeri
+
             document.getElementById('eposta').value = student.Eposta || '';
+            lastValidEposta = student.eposta || '';
             document.getElementById('aktifMi').checked = student.AktifMi || false;
         })
         .catch(err => {
@@ -112,7 +129,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
     
-    // Güncelleme iþlemi (ayný kod)
+    // Güncelleme iþlemi
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -168,11 +185,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             ad: capitalizeWords(ad),
             soyad: capitalizeWords(soyad),
             ogrenciNo: ogrenciNo.toUpperCase(),
-            sinif: sinif === "" ? null : sinif.toUpperCase(),
-            eposta: eposta === "" ? null : eposta,
+            sinif: sinif === "" ? lastValidSinif : sinif,
+            eposta: eposta === "" ? lastValidEposta : eposta,
             aktifMi: document.getElementById('aktifMi').checked
         };
 
+        const validationError = validateStudent(updatedStudent);
+        if (validationError) {
+            // Eðer doðrulama hatasý varsa, hata mesajýný göster ve iþlemi durdur
+            showFormMessage(validationError, 'danger');
+            resetSubmitButton();
+            return;
+        }
+
+        console.log('Güncellenmiþ öðrenci:', updatedStudent);  // Güncellenmiþ öðrenci verisi
+
+        
         try {
             const response = await fetch(`https://localhost:7282/api/Students/${idFromForm}`, {
                 method: 'PUT',
@@ -199,6 +227,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const result = await response.json();
             showFormMessage(`Öðrenci güncellendi: ${result.ad} ${result.soyad}`, 'success');
+
+            lastValidSinif = updatedStudent.sinif;  // Güncellenen sýnýfý son geçerli olarak kaydediyoruz
+            lastValidEposta = updatedStudent.eposta;  // Güncellenen epostayý son geçerli olarak kaydediyoruz
+           
         } catch (err) {
             showFormMessage("Bir hata oluþtu: " + err.message);
         }

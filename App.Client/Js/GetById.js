@@ -66,6 +66,13 @@ document.getElementById('getForm').addEventListener('submit', async (e) => {
     btn.disabled = true;
     btn.textContent = 'Yükleniyor...';
 
+    if (!id) {
+        showError('Lütfen geçerli bir Öðrenci Id girin.');
+        btn.disabled = false;
+        btn.textContent = 'Getir';
+        return;
+    }
+
     try {
         const response = await fetch(`${apiUrl}/${id}`);
 
