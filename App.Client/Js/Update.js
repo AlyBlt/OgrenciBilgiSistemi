@@ -139,24 +139,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         const idFromForm = document.getElementById('studentId').value;
         form.style.display = 'block'; // Formu görünür hale getir
 
+        let errors = [];
         const ad = document.getElementById('ad').value.trim();
         const soyad = document.getElementById('soyad').value.trim();
         const ogrenciNo = document.getElementById('ogrenciNo').value.trim();
         const sinif = document.getElementById('sinif').value.trim();  
         const eposta = document.getElementById('eposta').value.trim();   
 
-        //Zorunlu alan kontrolleri
-        if (!ad || !soyad || !ogrenciNo) {
-            showFormMessage("Ad, Soyad ve Öðrenci No boþ býrakýlamaz.", 'danger');
-            resetSubmitButton(); return;
-        }
-        // Sadece harf kontrolü
-        const onlyLetters = /^[a-zA-ZçÇðÐýÝöÖþÞüÜ\s]+$/;
 
-        if (!onlyLetters.test(ad) || !onlyLetters.test(soyad)) {
-            showFormMessage("Ad ve Soyad sadece harf içermelidir!", 'danger');
-            resetSubmitButton(); return;
+        if (!ad) errors.push('Ad alaný zorunludur!');
+        if (!soyad) errors.push('Soyad alaný zorunludur!');
+        if (!ogrenciNo) errors.push('Öðrenci numarasý zorunludur!');
+
+        if (errors.length > 0) {
+            showFormMessage(errors.join('<br>'));
+            resetSubmitButton();
+            return;
         }
+       
 
         // Öðrenci No kontrolü
         try {

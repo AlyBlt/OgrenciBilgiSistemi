@@ -46,16 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Burada, 'btn-close' butonuna týklama olayýný baðlýyoruz
-    
-
     form.addEventListener('submit', async (event) => {
-        event.preventDefault();  // Formun klasik submitini engelle
-        
+        event.preventDefault();
+
         submitButton.disabled = true;
         submitButton.textContent = 'Yükleniyor...';
 
-        // Form alanlarýný al
+        let errors = [];
         const ad = document.getElementById('ad').value.trim();
         const soyad = document.getElementById('soyad').value.trim();
         const ogrenciNo = document.getElementById('ogrenciNo').value.trim();
@@ -64,25 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const epostaInput = document.getElementById('eposta').value.trim();
         const eposta = epostaInput === "" ? null : epostaInput;
 
-        if (!ad || !soyad) {
-            showMessage('Ad ve Soyad alanlarý zorunludur!');
-            resetSubmitButton(); return;
-        }
-        const onlyLetters = /^[a-zA-ZçÇðÐýÝöÖþÞüÜ\s]+$/;
+        if (!ad) errors.push('Ad alaný zorunludur!');
+        if (!soyad) errors.push('Soyad alaný zorunludur!');
+        if (!ogrenciNo) errors.push('Öðrenci numarasý zorunludur!');
 
-        if (!onlyLetters.test(ad) || !onlyLetters.test(soyad)) {
-            showMessage('Ad ve Soyad sadece harf içermelidir!');
-            resetSubmitButton(); return;
-        }
-        
-
-        if (!ogrenciNo) {
-            showMessage('Öðrenci No boþ býrakýlamaz!');
-            resetSubmitButton(); return;
-        }
-        // Validate email format if present
-        if (eposta && !/\S+@\S+\.\S+/.test(eposta)) {
-            showMessage('Geçersiz e-posta adresi!');
+        if (errors.length > 0) {
+            showMessage(errors.join('<br>'));
             resetSubmitButton();
             return;
         }
